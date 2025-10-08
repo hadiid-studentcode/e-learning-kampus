@@ -34,22 +34,17 @@ class DatabaseSeeder extends Seeder
             'name' => 'dosen',
             'email' => 'dosen@gmail.com',
             'password' => bcrypt('password'),
+            'role' => 'dosen',
         ]);
 
         $mahasiswa =  User::factory()->create([
             'name' => 'mahasiswa',
             'email' => 'mahasiswa@gmail.com',
             'password' => bcrypt('password'),
+            'role' => 'mahasiswa',
         ]);
 
-        $roleDosen = Role::create(['name' => 'dosen']);
-        $dosen->assignRole([$roleDosen->name]);
-
-
-
-        $roleMahasiswa = Role::create(['name' => 'mahasiswa']);
-        $mahasiswa->assignRole([$roleMahasiswa->name]);
-
+     
         Courses::factory(1)->create();
         CourseStudent::factory(1)->create();
         Materials::factory(1)->create();

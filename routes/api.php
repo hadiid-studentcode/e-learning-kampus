@@ -3,7 +3,10 @@
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\ReplyController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SubmissionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -39,4 +42,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::group(['prefix' => '/submissions', 'as' => '/submissions.'], function () {
         Route::post('/{id}/grade', [SubmissionController::class, 'grade'])->name('grade');
     });
+
+    Route::resource('/discussions', DiscussionController::class)->only('store');
+
+    Route::post('/discussions/{id}/replies', [ReplyController::class, 'store']);
 });
+
+Route::get('/reports/courses', [ReportController::class, 'courseStats']);
+
+Route::get('/reports/assignments', [ReportController::class, 'assignmentStats']);
+
+Route::get('/reports/students/{id}', [ReportController::class, 'studentStats']);

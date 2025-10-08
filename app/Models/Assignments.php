@@ -12,6 +12,9 @@ class Assignments extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded = ['id'];
+    protected $casts = [
+        'deadline' => 'datetime',
+    ];
 
     public function course()
     {

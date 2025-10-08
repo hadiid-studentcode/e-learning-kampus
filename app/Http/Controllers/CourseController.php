@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Courses;
 use App\Models\CourseStudent;
+use App\Models\Materials;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -143,6 +144,18 @@ class CourseController extends Controller
                 'status' => 200,
                 'data' => $data
             ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An unexpected error occurred. ' . $th->getMessage(),
+                'status' => 500
+            ]);
+        }
+    }
+    public function download(string $id)
+    {
+        try {
+            $data = Materials::find($id);
+            return response()->download(storage_path('app/public/' . $data->file_path));
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'An unexpected error occurred. ' . $th->getMessage(),

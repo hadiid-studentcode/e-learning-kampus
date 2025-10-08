@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\SubmissionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,10 +23,20 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // dosen
 
 Route::middleware('auth:sanctum')->group(function () {
-
     Route::resource('/courses', CourseController::class)->only('index', 'store', 'update', 'destroy');
-
     Route::group(['prefix' => 'courses', 'as' => 'courses.'], function () {
         Route::post('/{id}/enroll', [CourseController::class, 'enroll'])->name('enroll');
+    });
+
+    Route::resource('/materials', MaterialController::class)->only('store');
+    Route::group(['prefix' => '/materials', 'as' => '/materials.'], function () {
+        Route::post('/{id}/download', [CourseController::class, 'download'])->name('download');
+    });
+
+    Route::resource('/assignments', AssignmentController::class)->only('store');
+
+    Route::resource('/submissions', SubmissionController::class)->only('store');
+    Route::group(['prefix' => '/submissions', 'as' => '/submissions.'], function () {
+        Route::post('/{id}/grade', [SubmissionController::class, 'grade'])->name('grade');
     });
 });

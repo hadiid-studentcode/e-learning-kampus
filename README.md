@@ -1,61 +1,104 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# E-Learning Kampus
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Ini adalah backend API untuk aplikasi E-Learning Kampus yang dibangun menggunakan Laravel. Aplikasi ini menyediakan fungsionalitas untuk autentikasi, manajemen mata kuliah, materi, tugas, diskusi, dan laporan statistik untuk dua peran utama: **Dosen** dan **Mahasiswa**.
 
-## About Laravel
+## Prasyarat
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP >= 8.1
+- Composer
+- MySQL 
+- Laravel
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Cara Instalasi & Setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1.  **Clone repository ini:**
+    ```bash
+    git clone https://github.com/hadiid-studentcode/e-learning-kampus.git
+    cd e-learning-kampus
+    ```
 
-## Learning Laravel
+2.  **Install dependensi PHP:**
+    ```bash
+    composer install
+    ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+3.  **Setup file environment:**
+    Salin file `.env.example` menjadi `.env` dan sesuaikan konfigurasi database Anda (DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD).
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+4.  **Jalankan migrasi database:**
+    Perintah ini akan membuat semua tabel yang diperlukan dalam database Anda.
+    ```bash
+    php artisan migrate
+    ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+5.  **Buat symbolic link untuk storage:**
+    Agar file yang di-upload bisa diakses secara publik.
+    ```bash
+    php artisan storage:link
+    ```
 
-## Laravel Sponsors
+6.  **Jalankan server pengembangan:**
+    ```bash
+    php artisan serve
+    ```
+    API sekarang akan berjalan di `http://127.0.0.1:8000`.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## Dokumentasi Endpoint API
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Semua endpoint memerlukan header `Accept: application/json`. Endpoint yang memerlukan autentikasi harus menyertakan token Sanctum di header `Authorization: Bearer <TOKEN>`.
 
-## Contributing
+### 1. Autentikasi
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Method | Endpoint | Deskripsi | Body Request |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/register` | Registrasi user baru. | `name`, `email`, `password`, `password_confirmation`, `role` ('mahasiswa' atau 'dosen') |
+| `POST` | `/api/login` | Login user & mendapatkan token. | `email`, `password` |
+| `POST` | `/api/logout` | Logout & menghapus token. | (Kosong) - *Memerlukan Autentikasi* |
 
-## Code of Conduct
+### 2. Manajemen Mata Kuliah
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Method | Endpoint | Deskripsi | Otorisasi |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/courses` | Menampilkan semua mata kuliah. | Mahasiswa & Dosen |
+| `POST` | `/api/courses` | Menambah mata kuliah baru. | Dosen |
+| `PUT` | `/api/courses/{course}` | Mengedit detail mata kuliah. | Dosen (Pemilik) |
+| `DELETE` | `/api/courses/{course}` | Menghapus mata kuliah. | Dosen (Pemilik) |
+| `POST` | `/api/courses/{id}/enroll` | Mendaftarkan diri ke mata kuliah. | Mahasiswa |
 
-## Security Vulnerabilities
+### 3. Materi Perkuliahan
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Method | Endpoint | Deskripsi | Otorisasi |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/materials` | Mengunggah file materi baru. | Dosen |
+| `POST`* | `/api/materials/{id}/download` | Mengunduh file materi. | Mahasiswa (Terdaftar) |
 
-## License
+*\*Catatan: Method `GET` lebih konvensional untuk endpoint download.*
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 4. Tugas & Penilaian
+
+| Method | Endpoint | Deskripsi | Otorisasi |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/assignments` | Membuat tugas baru. | Dosen |
+| `POST` | `/api/submissions` | Mengunggah file jawaban tugas. | Mahasiswa |
+| `POST` | `/api/submissions/{id}/grade` | Memberi nilai pada jawaban. | Dosen |
+
+### 5. Forum Diskusi
+
+| Method | Endpoint | Deskripsi | Otorisasi |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/discussions` | Membuat topik diskusi baru. | Mahasiswa & Dosen |
+| `POST` | `/api/discussions/{id}/replies`| Membalas sebuah diskusi. | Mahasiswa & Dosen |
+
+### 6. Laporan & Statistik
+
+| Method | Endpoint | Deskripsi | Otorisasi |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/reports/courses` | Statistik jumlah mahasiswa per mata kuliah. | Dosen |
+| `GET` | `/api/reports/assignments`| Statistik tugas yang sudah/belum dinilai. | Dosen |
+| `GET` | `/api/reports/students/{id}`| Statistik tugas & nilai per mahasiswa. | Dosen & Mahasiswa (Hanya data sendiri) |
